@@ -1,7 +1,6 @@
 package ru.practicum.shareit.requests.dto;
 
-/**
- * // TODO .
- */
-public class ItemRequestDto {
+//непонятно что с ним пока делать, реализую в следующем спринте
+public class ItemRequestDto  {
+
 }
