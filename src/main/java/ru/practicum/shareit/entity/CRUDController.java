@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.entity.model.Entity;
 import ru.practicum.shareit.entity.service.CRUDService;
-import ru.practicum.shareit.user.UserMapper;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -54,7 +53,6 @@ public abstract class CRUDController<T extends Entity, V extends CRUDService<T>,
 
     protected Collection<E> toDtoCollection(Collection<T> elements) {
         Collection<E> collection = new ArrayList<>();
-        UserMapper um = new UserMapper();
         for (T element : elements) {
             collection.add(toDto(element));
         }
