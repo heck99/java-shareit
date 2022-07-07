@@ -20,7 +20,7 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public Collection<Item> getAllByUserId(long id) {
-        return items.values().stream().filter(s -> s.getOwnerId() == id).collect(Collectors.toList());
+        return items.values().stream().filter(s -> s.getOwner().getId() == id).collect(Collectors.toList());
     }
 
     @Override
