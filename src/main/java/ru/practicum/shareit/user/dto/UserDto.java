@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.user.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,20 +7,20 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.entity.model.Entity;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@NoArgsConstructor
 @AllArgsConstructor
-@Setter
+@NoArgsConstructor
 @Getter
+@Setter
 @SuperBuilder
-public class ItemDto extends Entity {
+public class UserDto extends Entity {
     @NotBlank
     @NotNull
-    String name;
+    private String name;
     @NotNull
-    String description;
-    @NotNull
-    Boolean available;
+    @Email
+    private  String email;
 }

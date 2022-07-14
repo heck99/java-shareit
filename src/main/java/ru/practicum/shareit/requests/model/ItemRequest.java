@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.dto;
+package ru.practicum.shareit.requests.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -6,21 +6,21 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import ru.practicum.shareit.entity.model.Entity;
+import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 
-@NoArgsConstructor
 @AllArgsConstructor
-@Setter
+@NoArgsConstructor
 @Getter
-@SuperBuilder
-public class ItemDto extends Entity {
-    @NotBlank
+@Setter
+@SuperBuilder(toBuilder = true)
+public class ItemRequest extends Entity {
     @NotNull
-    String name;
+    private String description;
     @NotNull
-    String description;
+    private User request;
     @NotNull
-    Boolean available;
+    private LocalDateTime created;
 }
