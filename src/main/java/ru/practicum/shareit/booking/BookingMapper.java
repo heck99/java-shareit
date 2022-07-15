@@ -9,8 +9,10 @@ import ru.practicum.shareit.user.model.User;
 public class BookingMapper {
     public Booking toBooking(BookingDto bookingDto) {
         return new Booking(bookingDto.getId(), bookingDto.getStart(), bookingDto.getEnd(),
-                new Item(bookingDto.getItem().getId(), bookingDto.getItem().getName(), bookingDto.getItem().getDescription(), null, null, null),
-                new User(bookingDto.getBroker().getId(), bookingDto.getBroker().getName(), null), BookingStatus.valueOf(bookingDto.getStatus()));
+                new Item(bookingDto.getItem().getId(), bookingDto.getItem().getName(),
+                        bookingDto.getItem().getDescription(), null, null, null),
+                new User(bookingDto.getBroker().getId(), bookingDto.getBroker().getName(),
+                        null), BookingStatus.valueOf(bookingDto.getStatus()));
     }
 
     public BookingDto toBookingDto(Booking booking) {

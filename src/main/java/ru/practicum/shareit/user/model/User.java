@@ -1,6 +1,9 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @AllArgsConstructor
@@ -9,6 +12,9 @@ import lombok.*;
 @Setter
 public class User {
     Long id;
+
     private String name;
+
     private String email;
+
 }
