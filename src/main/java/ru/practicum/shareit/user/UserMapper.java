@@ -8,19 +8,11 @@ import java.util.stream.Collectors;
 
 public class UserMapper {
     public User toUser(UserDto userDto) {
-        return User.builder()
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .id(userDto.getId())
-                .build();
+        return new User(userDto.getId(), userDto.getName(), userDto.getEmail());
     }
 
     public UserDto toUserDto(User user) {
-        return UserDto.builder()
-                .name(user.getName())
-                .email(user.getEmail())
-                .id(user.getId())
-                .build();
+        return new UserDto(user.getId(), user.getName(), user.getEmail());
     }
 
     public Collection<UserDto> toUserDtoCollection(Collection<User> users) {

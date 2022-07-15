@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-import ru.practicum.shareit.entity.model.Entity;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -14,13 +12,18 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @Setter
 @Getter
-@SuperBuilder
-public class ItemDto extends Entity {
+public class ItemDto {
+
+    Long id;
+
     @NotBlank
     @NotNull
     String name;
+
     @NotNull
     String description;
+
     @NotNull
     Boolean available;
+
 }

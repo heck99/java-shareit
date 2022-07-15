@@ -30,7 +30,7 @@ public class InMemoryUserStorage implements UserStorage {
         if (user == null) {
             return Optional.empty();
         }
-        return Optional.of(user.toBuilder().build());
+        return Optional.of(user);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class InMemoryUserStorage implements UserStorage {
         checkEmail(element);
         element.setId(currentId++);
         users.put(element.getId(), element);
-        return element.toBuilder().build();
+        return element;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class InMemoryUserStorage implements UserStorage {
         checkEmail(element);
         users.remove(element.getId());
         users.put(element.getId(), element);
-        return element.toBuilder().build();
+        return element;
     }
 
     private boolean checkEmail(User user) {

@@ -8,19 +8,12 @@ import java.util.stream.Collectors;
 
 public class ItemMapper {
     public Item toItem(ItemDto itemDto) {
-        return Item.builder()
-                .id(itemDto.getId())
-                .name(itemDto.getName())
-                .available(itemDto.getAvailable())
-                .description(itemDto.getDescription()).build();
+        return new Item(itemDto.getId(), itemDto.getName(), itemDto.getDescription(), itemDto.getAvailable(),
+                null, null);
     }
 
     public ItemDto toItemDto(Item item) {
-        return ItemDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .available(item.getAvailable())
-                .description(item.getDescription()).build();
+        return new ItemDto(item.getId(), item.getName(), item.getDescription(), item.getAvailable());
     }
 
     public Collection<ItemDto> toItemDtoCollection(Collection<Item> items) {

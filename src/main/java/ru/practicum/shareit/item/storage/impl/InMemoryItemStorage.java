@@ -29,7 +29,7 @@ public class InMemoryItemStorage implements ItemStorage {
         if (item == null) {
             return Optional.empty();
         }
-        return Optional.of(item.toBuilder().build());
+        return Optional.of(item);
     }
 
     @Override
@@ -41,14 +41,14 @@ public class InMemoryItemStorage implements ItemStorage {
     public Item create(Item element) {
         element.setId(currentId++);
         items.put(element.getId(), element);
-        return element.toBuilder().build();
+        return element;
     }
 
     @Override
     public Item update(Item element) {
         items.remove(element.getId());
         items.put(element.getId(), element);
-        return element.toBuilder().build();
+        return element;
     }
 
     @Override

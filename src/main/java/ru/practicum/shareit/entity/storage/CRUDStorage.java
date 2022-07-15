@@ -1,11 +1,10 @@
 package ru.practicum.shareit.entity.storage;
 
-import ru.practicum.shareit.entity.model.Entity;
 
 import java.util.Collection;
 import java.util.Optional;
 
-public interface CRUDStorage<T extends Entity> {
+public interface CRUDStorage<T> {
     Collection<T> getAll();
 
     Optional<T> getById(long id);
