@@ -4,31 +4,31 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class BookingDto {
+public class BookingGetDto {
 
     private Long id;
 
     @NotNull
-    private LocalDate start;
+    @DateTimeFormat(fallbackPatterns = "yyy-MM-ddTHH:mm:ss")
+    private LocalDateTime start;
 
     @NotNull
-    private LocalDate end;
+    @DateTimeFormat(fallbackPatterns = "yyy-MM-ddTHH:mm:ss")
+    private LocalDateTime end;
 
-    @NotNull
     private Item item;
 
-    @NotNull
-    private User broker;
+    private User booker;
 
-    @NotNull
     private String status;
 
     @Getter

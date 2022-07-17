@@ -33,9 +33,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public boolean deleteElement(@PathVariable Long id) {
+    public void deleteElement(@PathVariable Long id) {
         log.info("/GET /{}", id);
-        return service.delete(id);
+        service.delete(id);
     }
 
     @PostMapping

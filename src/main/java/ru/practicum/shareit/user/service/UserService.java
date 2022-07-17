@@ -9,7 +9,7 @@ public interface UserService {
 
     UserDto getById(long id);
 
-    boolean delete(long id);
+    void delete(long id);
 
     UserDto create(UserDto element);
 

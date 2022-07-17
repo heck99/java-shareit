@@ -2,17 +2,26 @@ package ru.practicum.shareit.item.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.NotAuthentication;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.item.CommentMapper;
 import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.item.exception.UserNotBookedItem;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.item.storage.CommentRepository;
+import ru.practicum.shareit.item.storage.ItemRepository;
 import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -20,15 +29,21 @@ import java.util.Collections;
 @Slf4j
 public class ItemServiceImpl implements ItemService {
 
-    private final ItemStorage itemStorage;
+    private final ItemRepository itemStorage;
     private final UserService userService;
+    private final CommentRepository commentRepository;
+    private final BookingService bookingService;
     private final ItemMapper im = new ItemMapper();
     private final UserMapper um = new UserMapper();
+    private final CommentMapper cm = new CommentMapper();
 
     @Autowired
-    public ItemServiceImpl(ItemStorage itemStorage, UserService userService) {
+    public ItemServiceImpl(ItemRepository itemStorage, UserService userService,
+                           CommentRepository commentRepository, @Lazy BookingService bookingService) {
         this.itemStorage = itemStorage;
         this.userService = userService;
+        this.commentRepository = commentRepository;
+        this.bookingService = bookingService;
     }
 
     @Override
@@ -36,13 +51,14 @@ public class ItemServiceImpl implements ItemService {
         log.info("Проверяем наличие пользователя с id {}", id);
         userService.getById(id);
         log.info("Пользователь найден обращаемся к хранилищу");
-        return im.toItemDtoCollection(itemStorage.getAllByUserId(id));
+        //нормально ли так делать поиск по пользователю или нужно как-то по-другому?
+        return im.toItemDtoCollection(itemStorage.findAllByOwner(new User(id, null, null)));
     }
 
     @Override
     public ItemDto getById(long id) {
         log.info("Обращаемся к хранилищу");
-        Item item = itemStorage.getById(id).orElseThrow(
+        Item item = itemStorage.findById(id).orElseThrow(
                 () -> {
                     log.warn("Вещь с id {} не найдена", id);
                     return new NotFoundException(String.format("Сущность с id %d не найдена", id));
@@ -51,7 +67,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public boolean delete(long id, long userId) {
+    public void delete(long id, long userId) {
         log.info("Проверяем наличие пользователя с id {}", userId);
         userService.getById(userId);
         log.info("Пользователь найден, проверяем наличие вещи с id {}", id);
@@ -59,7 +75,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Вещь найдена, проверяем, что вещь с id {} принадлежит пользователю с id {}", id, userId);
         checkAuth(userId, item);
         log.info("Обращаемся к хранилищу");
-        return itemStorage.delete(id);
+        itemStorage.deleteById(id);
     }
 
     @Override
@@ -69,7 +85,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = im.toItem(element);
         item.setOwner(um.toUser(userService.getById(userId)));
         log.info("Пользователь найден, обращаемся к хранилищу");
-        return im.toItemDto(itemStorage.create(item));
+        return im.toItemDto(itemStorage.save(item));
     }
 
     @Override
@@ -77,10 +93,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Проверяем наличие пользователя с id {}", userId);
         userService.getById(userId);
         log.info("Пользователь найден, проверяем наличие вещи с id {}", element.getId());
-        //Получается мы теперь вместо вызова метода этого сервиса getById() должны обращаться к хранилищу и
-        // обрабатывать ответ, т.е. делать то же что и метод getById. А данный метод не можем использовать потому тчо он
-        //возвращает dto а там нет поля ownerId или его нужно добавить туда, но тесты не просят этого поля
-        Item item = itemStorage.getById(element.getId()).orElseThrow(
+        Item item = itemStorage.findById(element.getId()).orElseThrow(
                 () -> {
                     log.warn("Вещь с id {} не найдена", element.getId());
                     return new NotFoundException(String.format("Сущность с id %d не найдена", element.getId()));
@@ -88,7 +101,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Вещь найдена, проверяем, что вещь с id {} принадлежит пользователю с id {}", element.getId(), userId);
         checkAuth(userId, item);
         if (element.getAvailable() != null) {
-            log.info("Обновляем доступность на {}",element.getAvailable());
+            log.info("Обновляем доступность на {}", element.getAvailable());
             item.setAvailable(element.getAvailable());
         }
         if (element.getDescription() != null) {
@@ -100,7 +113,7 @@ public class ItemServiceImpl implements ItemService {
             item.setName(element.getName());
         }
         log.info("Обращаемся к хранилищу");
-        return im.toItemDto(itemStorage.update(item));
+        return im.toItemDto(itemStorage.save(item));
     }
 
     @Override
@@ -111,6 +124,20 @@ public class ItemServiceImpl implements ItemService {
         }
         log.info("Обращаемся к хранилищу");
         return im.toItemDtoCollection(itemStorage.search(text));
+    }
+
+    @Override
+    public CommentDto createComment(CommentDto commentDto, long userId, long itemId) {
+        userService.getById(userId);
+        getById(itemId);
+        if (bookingService.getByUserAndItem(userId, itemId).size() == 0) {
+            throw new UserNotBookedItem("Пользователь не арендовал этот предмет");
+        }
+        Comment comment = cm.toComment(commentDto);
+        comment.setItem(new Item(itemId, null, null, null, null, null, null));
+        comment.setUser(new User(userId, null, null));
+        comment.setCreated(LocalDateTime.now());
+        return cm.toCommentDto(commentRepository.save(comment));
     }
 
     private void checkAuth(Long userId, Item item) {
