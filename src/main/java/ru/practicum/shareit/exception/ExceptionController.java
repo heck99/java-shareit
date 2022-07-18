@@ -6,16 +6,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.booking.exception.*;
+import ru.practicum.shareit.item.exception.UserNotBookedItem;
 
 import javax.validation.ValidationException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ExceptionController {
 
     @ResponseBody
-    @ExceptionHandler({ValidationException.class})
+    @ExceptionHandler({ValidationException.class, BookingDateException.class, ItemNotAvailable.class,
+            MethodArgumentNotValidException.class, BookingNotWaitingStatus.class,
+            EndDateBeforeStartDate.class, UserNotBookedItem.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String onInternalServerError(RuntimeException e) {
         return e.getMessage();
@@ -28,20 +30,12 @@ public class ExceptionController {
         return e.getMessage();
     }
 
+    //TODO: заменить на  @ResponseStatus(HttpStatus.FORBIDDEN), когда доделают тесты
     @ResponseBody
-    @ExceptionHandler({NotAuthentication.class})
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler({NotAuthentication.class, UserNotAnOwner.class})
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     public String onNotAuthenticationException(RuntimeException e) {
         return e.getMessage();
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ResponseBody
-    public List<Violation> onMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        return e.getBindingResult().getFieldErrors().stream()
-                .map(error -> new Violation(error.getField(), error.getDefaultMessage()))
-                .collect(Collectors.toList());
     }
 
     private static class Violation {

@@ -7,29 +7,15 @@ import ru.practicum.shareit.user.model.User;
 
 
 public class ItemRequestMapper {
-    public ItemRequest toItem(ItemRequestDto itemDto) {
+    public ItemRequest toItemRequest(ItemRequestDto itemDto) {
         ItemRequestDto.User user = itemDto.getRequest();
-
-        return ItemRequest.builder()
-                .description(itemDto.getDescription())
-                .id(itemDto.getId())
-                .created(itemDto.getCreated())
-                .request(User.builder()
-                        .name(user.getName())
-                        .id(user.getId())
-                        .build())
-                .build();
+        return new ItemRequest(itemDto.getId(), itemDto.getDescription(),
+                new User(user.getId(), user.getName(), null), itemDto.getCreated());
     }
 
     public ItemRequestDto toItemDto(ItemRequest itemRequest) {
         User user = itemRequest.getRequest();
-        return ItemRequestDto.builder()
-                .id(itemRequest.getId())
-                .description(itemRequest.getDescription())
-                .request(ItemRequestDto.User.builder()
-                        .id(user.getId())
-                        .name(user.getName())
-                        .build())
-                .build();
+        return new ItemRequestDto(itemRequest.getId(), itemRequest.getDescription(),
+                new ItemRequestDto.User(user.getId(), user.getName()), itemRequest.getCreated());
     }
 }

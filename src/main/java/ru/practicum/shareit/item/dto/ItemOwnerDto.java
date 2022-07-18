@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import ru.practicum.shareit.booking.dto.BookingGetDto;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Getter
-public class ItemDto {
+public class ItemOwnerDto {
 
     Long id;
 
@@ -32,9 +32,9 @@ public class ItemDto {
 
     List<Comment> comments = new ArrayList<>();
 
-    Booking lastBooking;
+    BookingGetDto last;
 
-    Booking nextBooking;
+    BookingGetDto next;
 
     @Setter
     @Getter
@@ -46,12 +46,4 @@ public class ItemDto {
         String authorName;
     }
 
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Booking {
-        Long id;
-        Long bookerId;
-    }
 }

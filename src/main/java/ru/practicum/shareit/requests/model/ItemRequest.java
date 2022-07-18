@@ -4,23 +4,31 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.SuperBuilder;
-import ru.practicum.shareit.entity.model.Entity;
 import ru.practicum.shareit.user.model.User;
 
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SuperBuilder(toBuilder = true)
-public class ItemRequest extends Entity {
-    @NotNull
+@Entity
+@Table(name = "item_requests")
+public class ItemRequest {
+
+    @Column(name = "id")
+    @Id
+    Long id;
+
+    @Column(name = "description")
     private String description;
-    @NotNull
+
+    @ManyToOne()
+    @JoinColumn(name = "requester_id", referencedColumnName = "id")
     private User request;
-    @NotNull
+
+    @Column(name = "created")
     private LocalDateTime created;
+
 }

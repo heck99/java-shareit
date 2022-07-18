@@ -1,20 +1,29 @@
 package ru.practicum.shareit.user.model;
 
-import lombok.*;
-import lombok.experimental.SuperBuilder;
-import ru.practicum.shareit.entity.model.Entity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
+import javax.persistence.*;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
-@SuperBuilder(toBuilder = true)
-public class User extends Entity {
-    @NotBlank
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    Long id;
+
+    @Column(name = "name")
     private String name;
-    @Email
+
+    @Column(name = "email")
     private String email;
+
 }
