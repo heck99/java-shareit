@@ -9,7 +9,7 @@ public interface ItemService {
 
     Collection<ItemDto> getAllByUserId(long id);
 
-    ItemDto getById(long id);
+    ItemDto getById(long id, long userId);
 
     void delete(long id, long userId);
 

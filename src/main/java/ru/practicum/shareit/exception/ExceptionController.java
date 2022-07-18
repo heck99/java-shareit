@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.shareit.booking.exception.BookingDateException;
-import ru.practicum.shareit.booking.exception.ItemNotAvailable;
-import ru.practicum.shareit.booking.exception.UserNotAnOwner;
+import ru.practicum.shareit.booking.exception.*;
 import ru.practicum.shareit.item.exception.UserNotBookedItem;
 
 import javax.validation.ValidationException;
@@ -18,7 +16,8 @@ public class ExceptionController {
 
     @ResponseBody
     @ExceptionHandler({ValidationException.class, BookingDateException.class, ItemNotAvailable.class,
-            MethodArgumentNotValidException.class, UserNotBookedItem.class})
+            MethodArgumentNotValidException.class, BookingNotWaitingStatus.class,
+            EndDateBeforeStartDate.class, UserNotBookedItem.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public String onInternalServerError(RuntimeException e) {
         return e.getMessage();

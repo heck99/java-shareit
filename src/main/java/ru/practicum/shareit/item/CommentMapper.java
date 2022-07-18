@@ -13,7 +13,7 @@ public class CommentMapper {
     }
 
     public CommentDto toCommentDto(Comment comment) {
-        return new CommentDto(comment.getId(), comment.getText(), comment.getCreated());
+        return new CommentDto(comment.getId(), comment.getText(), comment.getUser().getName(), comment.getCreated());
     }
 
     public Collection<CommentDto> toCommentDtoCollection(Collection<Comment> comments) {

@@ -5,11 +5,12 @@ import ru.practicum.shareit.booking.dto.BookingGetDto;
 import ru.practicum.shareit.booking.dto.BookingPostDto;
 
 import java.util.Collection;
+import java.util.Optional;
 
 public interface BookingService {
     BookingPostDto create(BookingPostDto element, long userId);
 
-    void answerBooking(long bookingId, long userId, boolean approved);
+    BookingGetDto answerBooking(long bookingId, long userId, boolean approved);
 
     BookingGetDto getById(long id, long userId);
 
@@ -18,4 +19,8 @@ public interface BookingService {
     Collection<BookingGetDto> getAllByItemOwner(long userId, StateStatus state);
 
     Collection<BookingGetDto> getByUserAndItem(long userId, long itemId);
+
+    Optional<BookingGetDto> getLastOwnerBooking(long ownerId);
+
+    Optional<BookingGetDto> getNextOwnerBooking(long ownerId);
 }

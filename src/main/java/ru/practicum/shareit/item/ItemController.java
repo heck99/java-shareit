@@ -35,9 +35,9 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemDto get(@PathVariable Long id) {
+    public ItemDto get(@PathVariable Long id, @RequestHeader(name = userHeader) long userId) {
         log.info("/GET /{}", id);
-        return service.getById(id);
+        return service.getById(id, userId);
     }
 
     @PatchMapping("/{id}")

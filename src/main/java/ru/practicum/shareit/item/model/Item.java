@@ -43,7 +43,7 @@ public class Item {
     private ItemRequest request;
 
     @OneToMany()
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "item_id")
     List<Comment> comments = new ArrayList<>();
 
 }

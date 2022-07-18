@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.booking.dto.BookingGetDto;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.NotAuthentication;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -22,8 +23,7 @@ import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -49,21 +49,32 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Collection<ItemDto> getAllByUserId(long id) {
         log.info("Проверяем наличие пользователя с id {}", id);
-        userService.getById(id);
+        User user = um.toUser(userService.getById(id));
         log.info("Пользователь найден обращаемся к хранилищу");
-        //нормально ли так делать поиск по пользователю или нужно как-то по-другому?
-        return im.toItemDtoCollection(itemStorage.findAllByOwner(new User(id, null, null)));
+        List<Item> items = itemStorage.findAllByOwner(user);
+        List<ItemDto> list = new ArrayList<>();
+        for (Item item :items) {
+            Optional<BookingGetDto> last = bookingService.getLastOwnerBooking(item.getOwner().getId());
+            Optional<BookingGetDto> next = bookingService.getNextOwnerBooking(item.getOwner().getId());
+            list.add(im.toItemDtoOwner(item, last.orElse(null), next.orElse(null)));
+        }
+        return list;
     }
 
     @Override
-    public ItemDto getById(long id) {
+    public ItemDto getById(long id, long userId) {
         log.info("Обращаемся к хранилищу");
         Item item = itemStorage.findById(id).orElseThrow(
                 () -> {
                     log.warn("Вещь с id {} не найдена", id);
                     return new NotFoundException(String.format("Сущность с id %d не найдена", id));
                 });
-        return im.toItemDto(item);
+        if (!(item.getOwner().getId() == userId)) {
+            return im.toItemDto(item);
+        }
+        Optional<BookingGetDto> last = bookingService.getLastOwnerBooking(item.getOwner().getId());
+        Optional<BookingGetDto> next = bookingService.getNextOwnerBooking(item.getOwner().getId());
+        return im.toItemDtoOwner(item, last.orElse(null), next.orElse(null));
     }
 
     @Override
@@ -71,7 +82,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Проверяем наличие пользователя с id {}", userId);
         userService.getById(userId);
         log.info("Пользователь найден, проверяем наличие вещи с id {}", id);
-        Item item = im.toItem(getById(id));
+        Item item = im.toItem(getById(id, userId));
         log.info("Вещь найдена, проверяем, что вещь с id {} принадлежит пользователю с id {}", id, userId);
         checkAuth(userId, item);
         log.info("Обращаемся к хранилищу");
@@ -128,14 +139,18 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public CommentDto createComment(CommentDto commentDto, long userId, long itemId) {
-        userService.getById(userId);
-        getById(itemId);
-        if (bookingService.getByUserAndItem(userId, itemId).size() == 0) {
+        User user = um.toUser(userService.getById(userId));
+        Item item = im.toItem(getById(itemId, userId));
+        Collection<BookingGetDto> bookings = bookingService.getByUserAndItem(userId, itemId);
+        if (bookings.size() == 0) {
             throw new UserNotBookedItem("Пользователь не арендовал этот предмет");
         }
+        if (bookings.stream().allMatch((booking) -> booking.getStart().isAfter(LocalDateTime.now()))) {
+            throw new UserNotBookedItem("Пользователь ещё не арендовал этот предмет");
+        }
         Comment comment = cm.toComment(commentDto);
-        comment.setItem(new Item(itemId, null, null, null, null, null, null));
-        comment.setUser(new User(userId, null, null));
+        comment.setItem(item);
+        comment.setUser(user);
         comment.setCreated(LocalDateTime.now());
         return cm.toCommentDto(commentRepository.save(comment));
     }
